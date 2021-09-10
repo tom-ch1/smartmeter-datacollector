@@ -70,7 +70,7 @@ ISKRA_AM550_COSEM_REGISTERS = [
 class IskraAM550(Meter):
     HDLC_FLAG = b"\x7e"
 
-    def __init__(self, port: str) -> None:
+    def __init__(self, port: str, decryption_key: str = None) -> None:
         super().__init__()
 
         serial_config = SerialConfig(
@@ -91,7 +91,7 @@ class IskraAM550(Meter):
             clock_obis="0.0.1.0.0.255",
             register_obis=ISKRA_AM550_COSEM_REGISTERS
         )
-        self._parser = HdlcDlmsParser(cosem_config)
+        self._parser = HdlcDlmsParser(cosem_config, decryption_key)
         LOGGER.info("Successfully set up Iskra AM550 smart meter on '%s'.", port)
 
     async def start(self) -> None:
