@@ -6,6 +6,7 @@
 # See LICENSES/README.md for more information.
 #
 import logging
+import time
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -99,17 +100,18 @@ class HdlcDlmsParser:
         if clock_obj and isinstance(clock_obj, GXDLMSClock):
             timestamp = self._extract_datetime(clock_obj)
         if timestamp is None:
-            LOGGER.warning("No timestamp available. Ignoring data bundle.")
-            return []
+            timestamp = datetime.now()
+            LOGGER.warning("No timestamp available, setting timestamp to local time %s." % timestamp)
 
         # Extract meter id
         id_obj = dlms_objects.get(self._cosem.id_obis, None)
         meter_id = None
         if id_obj and isinstance(id_obj, GXDLMSData):
             meter_id = self._extract_value_from_data_object(id_obj)
+#            LOGGER.warning("Meter ID = %s", meter_id)
         if not isinstance(meter_id, str) or len(meter_id) == 0:
-            LOGGER.warning("No meter ID available. Ignoring data bundle.")
-            return []
+            meter_id = 12345
+            LOGGER.warning("No meter ID available, using fake ID %s." % meter_id)
 
         # Extract register data
         data_points: List[MeterDataPoint] = []
